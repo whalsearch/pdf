@@ -2,351 +2,557 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>متن به PDF</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Vazirmatn,Tahoma,sans-serif}
-body{background:#e8eaef;color:#1f2937;font-size:15px;line-height:1.7;padding-bottom:80px}
-header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px #6366f133}
-header h1{font-size:17px;display:flex;gap:6px;align-items:center}
-header button{background:#fff3;border:0;color:#fff;width:38px;height:38px;border-radius:10px;font-size:18px;cursor:pointer}
-.wrap{display:grid;grid-template-columns:1fr 380px;gap:16px;padding:16px;max-width:1400px;margin:0 auto;align-items:start}
-@media(max-width:900px){.wrap{grid-template-columns:1fr}.preview-col{position:fixed!important;inset:0;background:#0009;backdrop-filter:blur(6px);z-index:200;padding:16px;display:none;overflow-y:auto}.preview-col.on{display:block}}
-.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 3px #0000000d;border:1px solid #eef0f5;margin-bottom:14px}
-.title{font-size:14px;font-weight:700;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #eef2ff;display:flex;justify-content:space-between;align-items:center}
-.ctrl{margin-bottom:16px}.ctrl:last-child{margin-bottom:0}
-.lbl{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px}
-.val{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;padding:2px 10px;border-radius:14px;font-size:12px;font-weight:700;min-width:42px;text-align:center}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Vazirmatn,Tahoma,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:#eef0f5;color:#1f2937;font-size:15px;line-height:1.7;min-height:100vh}
+
+header{position:sticky;top:0;z-index:50;background:#6366f1;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px #6366f133}
+header h1{font-size:17px;font-weight:700}
+header .pages{background:#fff2;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600}
+
+main{padding:16px;max-width:800px;margin:0 auto;padding-bottom:100px}
+
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px #0000000d}
+.card h3{font-size:14px;font-weight:700;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #eef2ff}
+
+textarea{width:100%;min-height:320px;padding:14px;border-radius:12px;border:2px solid #e5e7eb;background:#fafbfc;font-family:inherit;font-size:16px;line-height:1.9;resize:vertical;transition:.2s}
+textarea:focus{outline:0;border-color:#6366f1;background:#fff}
+
+.info{display:flex;justify-content:space-between;font-size:12px;color:#9ca3af;margin-top:8px;padding:0 4px}
+
+.ctrl{margin-bottom:18px}
+.ctrl:last-child{margin-bottom:0}
+.ctrl-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:14px;font-weight:600}
+.ctrl-val{background:#6366f1;color:#fff;padding:2px 12px;border-radius:14px;font-size:12px;font-weight:700;min-width:44px;text-align:center}
+
 input[type=range]{width:100%;height:36px;-webkit-appearance:none;background:transparent;cursor:pointer}
 input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:#e5e7eb}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#4f46e5);margin-top:-9px;border:3px solid #fff;box-shadow:0 2px 6px #6366f166}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#6366f1;margin-top:-10px;border:3px solid #fff;box-shadow:0 2px 6px #6366f166}
+
 .chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{flex:1;min-width:60px;padding:10px 6px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;color:#6b7280;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:.15s}
+.chip{flex:1;min-width:65px;padding:11px 6px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;color:#6b7280;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:.15s}
 .chip.active{background:#eef2ff;border-color:#6366f1;color:#4f46e5}
-textarea{width:100%;min-height:260px;padding:14px;border-radius:12px;border:2px solid #e5e7eb;background:#fafbfc;font-family:inherit;font-size:15px;line-height:1.9;resize:vertical;transition:.2s}
-textarea:focus{outline:0;border-color:#6366f1;background:#fff;box-shadow:0 0 0 3px #6366f11a}
-.info{display:flex;justify-content:space-between;font-size:11px;color:#9ca3af;margin-top:6px;padding:0 4px}
-.btn{width:100%;padding:14px;border:0;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s}
+.chip:active{transform:scale(.96)}
+
+.btn{width:100%;padding:15px;border:0;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn:active{transform:scale(.97)}
-.btn-p{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;box-shadow:0 4px 12px #6366f144}
-.btn-s{background:#f3f4f6;color:#4b5563;border:2px solid #e5e7eb;margin-top:8px}
+.btn-p{background:#6366f1;color:#fff;box-shadow:0 4px 12px #6366f144}
+.btn-s{background:#fff;color:#4b5563;border:2px solid #e5e7eb;margin-top:10px}
 
-/* ====== پیش‌نمایش واقعی A4 ====== */
-.preview-col{position:sticky;top:80px}
-.preview-toolbar{background:#2d3748;color:#fff;padding:10px 14px;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center;font-size:12px}
-.preview-toolbar .zoom-info{display:flex;align-items:center;gap:8px}
-.preview-toolbar button{background:#ffffff1a;border:0;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px}
-.preview-stage{background:#4a5568;padding:20px;border-radius:0 0 12px 12px;max-height:calc(100vh - 160px);overflow:auto;display:flex;justify-content:center}
+/* ====== پیش‌نمایش تمام‌صفحه ====== */
+.viewer{position:fixed;inset:0;background:#3a3f4b;z-index:200;display:none;flex-direction:column}
+.viewer.on{display:flex}
 
-/* کاغذ A4 واقعی — نسبت ۲۱۰×۲۹۷ */
-.paper{
+.viewer-head{background:#252932;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;box-shadow:0 2px 8px #0003}
+.viewer-head .title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.viewer-head .count{background:#ffffff1a;padding:4px 10px;border-radius:12px;font-size:12px}
+.viewer-head .close{background:#ef4444;border:0;color:#fff;padding:8px 16px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+
+.viewer-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;align-items:center;gap:20px;-webkit-overflow-scrolling:touch}
+
+.page-wrap{position:relative;flex-shrink:0}
+.page{
   background:#fff;
   width:210mm;
-  min-height:297mm;
-  box-shadow:0 8px 30px #0000004d;
-  transform-origin:top center;
-  transition:transform .2s;
+  height:297mm;
+  box-shadow:0 4px 20px #0006;
+  overflow:hidden;
   position:relative;
 }
-.paper-inner{
+.page-content{
+  position:absolute;
+  inset:0;
   padding:30px;
   color:#000;
   white-space:pre-wrap;
   word-wrap:break-word;
-  direction:rtl;
-  text-align:right;
-  font-size:14px;
-  line-height:1.8;
+  overflow:hidden;
+}
+.page-num{
+  position:absolute;
+  bottom:-28px;
+  left:50%;
+  transform:translateX(-50%);
+  color:#cbd5e1;
+  font-size:12px;
+  font-weight:600;
+  white-space:nowrap;
 }
 
-/* کادر متن خالی */
-.paper-inner:empty::before{content:'متن شما اینجا نمایش داده می‌شود...';color:#cbd5e1;font-style:italic}
-
-/* روی موبایل */
 @media(max-width:900px){
-  .preview-stage{max-height:none;padding:10px}
-  .paper{transform:scale(.4)}
-  .preview-toolbar{position:sticky;top:0;border-radius:0}
-  .preview-close{display:flex!important}
+  .page{transform:scale(.42);transform-origin:top center}
+  .page-wrap{height:calc(297mm * .42 + 20px)}
+  .page-num{bottom:-24px;font-size:14px}
+  .viewer-body{padding:14px;gap:0}
 }
-.preview-close{display:none;background:#e53e3e!important;width:auto!important;padding:0 10px!important;font-size:12px!important;font-weight:600!important}
 
-/* دکمه شناور پیش‌نمایش موبایل */
-.float-preview{position:fixed;bottom:90px;left:20px;z-index:99;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:0;width:56px;height:56px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 4px 16px #6366f166;display:none}
-@media(max-width:900px){.float-preview{display:flex;align-items:center;justify-content:center}}
-
+/* ====== موبایل: تب‌های پایین ====== */
 .tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e5e7eb;display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:100;box-shadow:0 -2px 10px #0000000d}
 .tab{flex:1;background:0;border:0;padding:8px 4px;font-family:inherit;font-size:11px;font-weight:600;color:#9ca3af;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border-radius:10px}
 .tab i{font-size:20px;font-style:normal}
 .tab.active{color:#6366f1;background:#eef2ff}
-.panel{display:none;animation:fade .25s}
+
+.panel{display:none}
 .panel.active{display:block}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* لودینگ */
 .load{position:fixed;inset:0;background:#00000080;backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:999}
 .load.on{display:flex}
-.load .box{background:#fff;padding:24px 28px;border-radius:16px;text-align:center}
+.load-box{background:#fff;padding:24px 32px;border-radius:16px;text-align:center}
 .spin{width:42px;height:42px;border:4px solid #eef2ff;border-top-color:#6366f1;border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 12px}
 @keyframes sp{to{transform:rotate(360deg)}}
-.toast{position:fixed;bottom:90px;left:50%;transform:translate(-50%,100px);background:#1f2937;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:2000;opacity:0;transition:.3s;max-width:calc(100% - 30px);text-align:center}
+
+/* توست */
+.toast{position:fixed;bottom:90px;left:50%;transform:translate(-50%,100px);background:#1f2937;color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:2000;opacity:0;transition:.3s;max-width:calc(100% - 40px);text-align:center;pointer-events:none}
 .toast.on{opacity:1;transform:translate(-50%,0)}
-#pdf{position:absolute;left:-9999px;top:0;background:#fff;color:#000}
+
+.hidden{position:absolute;left:-99999px;top:0;visibility:hidden}
 </style>
 </head>
 <body>
 
 <header>
   <h1>📄 متن به PDF</h1>
-  <button onclick="alert('متن را وارد کنید، تنظیمات را اعمال کنید و PDF بگیرید.\n\nفایل در Downloads ذخیره می‌شود.')">?</button>
+  <div class="pages" id="pageBadge">۰ صفحه</div>
 </header>
 
-<div class="wrap">
+<main>
 
-  <!-- محتوای اصلی -->
-  <main>
-    <div class="panel active" id="p-text">
-      <div class="card">
-        <div class="title">✍️ متن شما</div>
-        <textarea id="txt" placeholder="متن خود را بنویسید یا پیست کنید...">سلام، این یک متن نمونه است.
-این برنامه متن شما را با تنظیمات دلخواه به PDF تبدیل می‌کند.
+  <!-- تب متن -->
+  <div class="panel active" id="p-text">
+    <div class="card">
+      <h3>✍️ متن</h3>
+      <textarea id="txt" placeholder="متن را اینجا بنویسید یا پیست کنید...">سلام، این یک متن نمونه است.
 
-روی تب تنظیمات بزنید و موارد را اعمال کنید، سپس PDF بگیرید.</textarea>
-        <div class="info"><span id="cc">۰ کاراکتر</span><span id="wc">۰ کلمه</span></div>
+این برنامه متن شما را به PDF تبدیل می‌کند. روی تب «تنظیمات» سایز فونت و فاصله خطوط را تغییر دهید. روی «خروجی» دکمه پیش‌نمایش و دانلود را بزنید.
+
+موفق باشید! 🚀</textarea>
+      <div class="info"><span id="cc">۰ کاراکتر</span><span id="wc">۰ کلمه</span></div>
+    </div>
+  </div>
+
+  <!-- تب تنظیمات -->
+  <div class="panel" id="p-set">
+    <div class="card">
+      <h3>🔤 فونت</h3>
+      <div class="ctrl">
+        <div class="ctrl-head"><span>سایز فونت</span><span class="ctrl-val" id="fsV">۱۴</span></div>
+        <input type="range" id="fs" min="8" max="40" value="14">
       </div>
-      <button class="btn btn-p" onclick="tab('set')">مرحله بعد: تنظیمات ←</button>
+      <div class="ctrl">
+        <div class="ctrl-head"><span>فاصله خطوط</span><span class="ctrl-val" id="lhV">۱.۸</span></div>
+        <input type="range" id="lh" min="1" max="3" step="0.1" value="1.8">
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-head"><span>حاشیه صفحه</span><span class="ctrl-val" id="pdV">۳۰</span></div>
+        <input type="range" id="pd" min="10" max="80" value="30">
+      </div>
     </div>
 
-    <div class="panel" id="p-set">
-      <div class="card">
-        <div class="title">🔤 فونت و متن</div>
-        <div class="ctrl">
-          <div class="lbl"><span>سایز فونت</span><span class="val" id="fsV">۱۴</span></div>
-          <input type="range" id="fs" min="8" max="40" value="14">
-        </div>
-        <div class="ctrl">
-          <div class="lbl"><span>فاصله خطوط</span><span class="val" id="lhV">۱.۸</span></div>
-          <input type="range" id="lh" min="1" max="3" step="0.1" value="1.8">
-        </div>
-        <div class="ctrl">
-          <div class="lbl"><span>حاشیه صفحه</span><span class="val" id="pdV">۳۰</span></div>
-          <input type="range" id="pd" min="10" max="100" value="30">
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="title">🔤 نوع فونت</div>
-        <div class="chips" id="ffG">
-          <button class="chip active" data-v="Vazirmatn">وزیرمتن</button>
-          <button class="chip" data-v="Tahoma">Tahoma</button>
-          <button class="chip" data-v="Arial">Arial</button>
-          <button class="chip" data-v="'Courier New'">Courier</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="title">↔️ جهت متن</div>
-        <div class="chips" id="dirG">
-          <button class="chip active" data-v="rtl">راست به چپ</button>
-          <button class="chip" data-v="ltr">چپ به راست</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="title">📐 تراز متن</div>
-        <div class="chips" id="alG">
-          <button class="chip active" data-v="right">راست</button>
-          <button class="chip" data-v="justify">هم‌تراز</button>
-          <button class="chip" data-v="center">وسط</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="title">📄 اندازه صفحه</div>
-        <div class="chips" id="psG">
-          <button class="chip active" data-v="a4">A4</button>
-          <button class="chip" data-v="a5">A5</button>
-          <button class="chip" data-v="letter">Letter</button>
-        </div>
-      </div>
-
-      <button class="btn btn-p" onclick="tab('exp')">مرحله بعد: خروجی ←</button>
-    </div>
-
-    <div class="panel" id="p-exp">
-      <div class="card">
-        <div class="title">💾 خروجی PDF</div>
-        <div class="ctrl">
-          <div class="lbl"><span>نام فایل</span></div>
-          <input type="text" id="fn" value="document" style="width:100%;padding:12px;border-radius:10px;border:2px solid #e5e7eb;font-family:inherit;font-size:14px;background:#fafbfc">
-        </div>
-        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px;margin-top:12px;font-size:12px;color:#0369a1;line-height:1.6">
-          💡 فایل در پوشه Downloads ذخیره می‌شود.
-        </div>
-      </div>
-      <button class="btn btn-p" onclick="makePDF()">📥 دانلود PDF</button>
-    </div>
-  </main>
-
-  <!-- پیش‌نمایش واقعی A4 -->
-  <aside class="preview-col" id="previewCol">
-    <div class="preview-toolbar">
-      <div class="zoom-info">
-        <span>🔍 بزرگ‌نمایی</span>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <button onclick="zoom(-1)">−</button>
-        <span id="zoomVal" style="min-width:40px;text-align:center">۵۰٪</span>
-        <button onclick="zoom(1)">+</button>
-        <button onclick="zoomReset()" style="width:auto;padding:0 8px;font-size:11px">ریست</button>
-        <button class="preview-close" onclick="toggleMobilePreview(false)">بستن ✕</button>
+    <div class="card">
+      <h3>🔤 نوع فونت</h3>
+      <div class="chips" id="ffG">
+        <button class="chip active" data-v="Vazirmatn">وزیرمتن</button>
+        <button class="chip" data-v="Tahoma">Tahoma</button>
+        <button class="chip" data-v="Arial">Arial</button>
       </div>
     </div>
-    <div class="preview-stage">
-      <div class="paper" id="paper">
-        <div class="paper-inner" id="paperInner"></div>
+
+    <div class="card">
+      <h3>↔️ جهت</h3>
+      <div class="chips" id="dirG">
+        <button class="chip active" data-v="rtl">راست‌چین</button>
+        <button class="chip" data-v="ltr">چپ‌چین</button>
       </div>
     </div>
-  </aside>
 
-</div>
+    <div class="card">
+      <h3>📐 تراز</h3>
+      <div class="chips" id="alG">
+        <button class="chip active" data-v="right">راست</button>
+        <button class="chip" data-v="justify">هم‌تراز</button>
+        <button class="chip" data-v="center">وسط</button>
+      </div>
+    </div>
 
-<!-- دکمه شناور پیش‌نمایش (موبایل) -->
-<button class="float-preview" onclick="toggleMobilePreview(true)">👁️</button>
+    <div class="card">
+      <h3>📄 اندازه صفحه</h3>
+      <div class="chips" id="psG">
+        <button class="chip active" data-v="a4">A4</button>
+        <button class="chip" data-v="a5">A5</button>
+        <button class="chip" data-v="letter">Letter</button>
+      </div>
+    </div>
+  </div>
 
+  <!-- تب خروجی -->
+  <div class="panel" id="p-exp">
+    <div class="card">
+      <h3>💾 خروجی</h3>
+      <div class="ctrl">
+        <div class="ctrl-head"><span>نام فایل</span></div>
+        <input type="text" id="fn" value="document" style="width:100%;padding:12px;border-radius:10px;border:2px solid #e5e7eb;font-family:inherit;font-size:14px;background:#fafbfc">
+      </div>
+    </div>
+    <button class="btn btn-p" onclick="openViewer()">👁️ پیش‌نمایش</button>
+    <button class="btn btn-s" onclick="downloadPDF()">📥 دانلود PDF</button>
+  </div>
+
+</main>
+
+<!-- تب‌بار -->
 <nav class="tabs">
   <button class="tab active" data-t="text" onclick="tab('text')"><i>✍️</i>متن</button>
   <button class="tab" data-t="set" onclick="tab('set')"><i>⚙️</i>تنظیمات</button>
   <button class="tab" data-t="exp" onclick="tab('exp')"><i>📥</i>خروجی</button>
 </nav>
 
-<div class="load" id="load"><div class="box"><div class="spin"></div><p style="font-weight:600;font-size:14px">در حال ساخت...</p></div></div>
+<!-- پیش‌نمایش تمام‌صفحه -->
+<div class="viewer" id="viewer">
+  <div class="viewer-head">
+    <div class="title">👁️ پیش‌نمایش <span class="count" id="viewerCount">۰ صفحه</span></div>
+    <button class="close" onclick="closeViewer()">بستن ✕</button>
+  </div>
+  <div class="viewer-body" id="viewerBody"></div>
+</div>
+
+<!-- لودینگ -->
+<div class="load" id="load">
+  <div class="load-box">
+    <div class="spin"></div>
+    <p style="font-weight:600;font-size:14px">در حال ساخت...</p>
+  </div>
+</div>
+
+<!-- توست -->
 <div class="toast" id="toast"></div>
-<div id="pdf"></div>
+
+<!-- ظرف مخفی برای رندر نهایی PDF -->
+<div class="hidden"><div id="pdfRoot"></div></div>
 
 <script>
-// اعداد فارسی
-const fa=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+// ========== اعداد فارسی ==========
+const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
 
-// تب‌ها
-function tab(n){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  document.getElementById('p-'+n).classList.add('active');
-  document.querySelector(`.tab[data-t="${n}"]`).classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+// ========== تب‌ها ==========
+function tab(name){
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('p-' + name).classList.add('active');
+  document.querySelector(`.tab[data-t="${name}"]`).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
-// اسلایدرها
-[['fs','fsV'],['lh','lhV'],['pd','pdV']].forEach(([id,vid])=>{
-  const el=document.getElementById(id),v=document.getElementById(vid);
-  el.addEventListener('input',()=>{v.textContent=fa(el.value);live()});
-  v.textContent=fa(el.value);
+// ========== خواندن تنظیمات ==========
+const $ = id => document.getElementById(id);
+const cv = g => document.querySelector(`#${g} .chip.active`).dataset.v;
+
+function getSettings(){
+  return {
+    fontSize: +$('fs').value,
+    lineHeight: +$('lh').value,
+    padding: +$('pd').value,
+    font: cv('ffG'),
+    dir: cv('dirG'),
+    align: cv('alG'),
+    size: cv('psG')
+  };
+}
+
+// ابعاد کاغذ بر حسب میلی‌متر (برای رندر HTML)
+const PAPER_MM = {
+  a4:     { w: 210, h: 297 },
+  a5:     { w: 148, h: 210 },
+  letter: { w: 216, h: 279 }
+};
+
+// ========== اسلایدرها ==========
+[['fs','fsV'], ['lh','lhV'], ['pd','pdV']].forEach(([id, vid]) => {
+  const el = $(id), v = $(vid);
+  el.addEventListener('input', () => {
+    v.textContent = fa(el.value);
+    updatePageCount();
+  });
+  v.textContent = fa(el.value);
 });
 
-// چیپ‌ها
-['ffG','dirG','alG','psG'].forEach(g=>{
-  document.getElementById(g).addEventListener('click',e=>{
-    const c=e.target.closest('.chip');if(!c)return;
-    document.querySelectorAll(`#${g} .chip`).forEach(x=>x.classList.remove('active'));
+// ========== چیپ‌ها ==========
+['ffG','dirG','alG','psG'].forEach(g => {
+  $(g).addEventListener('click', e => {
+    const c = e.target.closest('.chip');
+    if(!c) return;
+    $(g).querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
     c.classList.add('active');
-    // تغییر اندازه کاغذ
-    if(g==='psG') updatePaperSize();
-    live();
+    updatePageCount();
   });
 });
-const cv=g=>document.querySelector(`#${g} .chip.active`).dataset.v;
 
-// اندازه کاغذ بر اساس انتخاب
-const paperSizes={a4:{w:'210mm',h:'297mm'},a5:{w:'148mm',h:'210mm'},letter:{w:'216mm',h:'279mm'}};
-function updatePaperSize(){
-  const s=paperSizes[cv('psG')];
-  const p=document.getElementById('paper');
-  p.style.width=s.w;
-  p.style.minHeight=s.h;
+// ========== شمارش ==========
+const txt = $('txt');
+function updateCounts(){
+  const t = txt.value;
+  $('cc').textContent = fa(t.length) + ' کاراکتر';
+  $('wc').textContent = fa(t.trim() ? t.trim().split(/\s+/).length : 0) + ' کلمه';
+}
+txt.addEventListener('input', () => {
+  updateCounts();
+  updatePageCount();
+});
+updateCounts();
+
+// ========== اعمال استایل روی یک عنصر ==========
+function applyStyle(el, s){
+  el.style.fontSize = s.fontSize + 'px';
+  el.style.lineHeight = s.lineHeight;
+  el.style.padding = s.padding + 'px';
+  el.style.direction = s.dir;
+  el.style.textAlign = s.align;
+  el.style.fontFamily = `'${s.font}', Tahoma, sans-serif`;
+  el.style.whiteSpace = 'pre-wrap';
+  el.style.wordWrap = 'break-word';
 }
 
-// شمارش
-const txt=document.getElementById('txt');
-function counts(){
-  const t=txt.value;
-  document.getElementById('cc').textContent=fa(t.length)+' کاراکتر';
-  document.getElementById('wc').textContent=fa(t.trim()?t.trim().split(/\s+/).length:0)+' کلمه';
-}
-txt.addEventListener('input',()=>{counts();live()});
-counts();
+// ========== شمارش صفحات واقعی ==========
+// رندر در ظرف مخفی با عرض دقیق صفحه، سپس محاسبه ارتفاع
+function countPages(){
+  const s = getSettings();
+  const mm = PAPER_MM[s.size];
+  const text = txt.value;
 
-// اعمال استایل به عنصر
-function styling(el){
-  el.style.fontSize=document.getElementById('fs').value+'px';
-  el.style.lineHeight=document.getElementById('lh').value;
-  el.style.padding=document.getElementById('pd').value+'px';
-  el.style.direction=cv('dirG');
-  el.style.textAlign=cv('alG');
-  el.style.fontFamily=`'${cv('ffG')}',Tahoma,sans-serif`;
-}
+  // A4: 210mm عرض ≈ 793.7px در 96dpi
+  // ارتفاع A4 = 297mm ≈ 1122.5px
+  const PX_PER_MM = 96 / 25.4;
+  const pageW = mm.w * PX_PER_MM;
+  const pageH = mm.h * PX_PER_MM;
 
-// پیش‌نمایش زنده — دقیقاً شبیه PDF
-function live(){
-  const inner=document.getElementById('paperInner');
-  inner.textContent=txt.value;
-  styling(inner);
-}
+  // ظرف اندازه‌گیری
+  const probe = document.createElement('div');
+  probe.style.cssText = `position:absolute;left:-99999px;top:0;
+    width:${pageW}px;box-sizing:border-box;
+    font-size:${s.fontSize}px;
+    line-height:${s.lineHeight};
+    padding:${s.padding}px;
+    font-family:'${s.font}', Tahoma, sans-serif;
+    direction:${s.dir};
+    text-align:${s.align};
+    white-space:pre-wrap;
+    word-wrap:break-word;`;
+  probe.textContent = text;
+  document.body.appendChild(probe);
 
-// زوم پیش‌نمایش
-let currentZoom=50;
-function applyZoom(){
-  document.getElementById('paper').style.transform=`scale(${currentZoom/100})`;
-  document.getElementById('zoomVal').textContent=fa(currentZoom)+'٪';
-}
-function zoom(d){
-  currentZoom=Math.max(20,Math.min(150,currentZoom+d*10));
-  applyZoom();
-}
-function zoomReset(){currentZoom=50;applyZoom()}
+  const innerH = pageH - (s.padding * 2);
+  const totalH = probe.scrollHeight - (s.padding * 2);
+  document.body.removeChild(probe);
 
-// پیش‌نمایش موبایل
-function toggleMobilePreview(show){
-  document.getElementById('previewCol').classList.toggle('on',show);
+  if(totalH <= 0) return 1;
+  return Math.max(1, Math.ceil(totalH / innerH));
 }
 
-// توست
-let tt;
-function toast(m){
-  const t=document.getElementById('toast');
-  t.textContent=m;t.classList.add('on');
-  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2500);
+function updatePageCount(){
+  const n = countPages();
+  const label = fa(n) + ' صفحه';
+  $('pageBadge').textContent = label;
+  $('viewerCount').textContent = label;
 }
 
-// ساخت PDF
-function makePDF(){
-  if(!txt.value.trim()){toast('⚠️ متن را وارد کنید');tab('text');return}
-  const c=document.getElementById('pdf');
-  c.textContent=txt.value;
-  styling(c);
-  document.getElementById('load').classList.add('on');
-  setTimeout(()=>{
-    html2pdf().set({
-      margin:0,
-      filename:(document.getElementById('fn').value.trim()||'document')+'.pdf',
-      image:{type:'jpeg',quality:.98},
-      html2canvas:{scale:2,useCORS:true,backgroundColor:'#fff',logging:false},
-      jsPDF:{unit:'mm',format:cv('psG'),orientation:'portrait'},
-      pagebreak:{mode:['avoid-all','css','legacy']}
-    }).from(c).save()
-    .then(()=>{document.getElementById('load').classList.remove('on');toast('✅ PDF ساخته شد')})
-    .catch(e=>{document.getElementById('load').classList.remove('on');toast('❌ خطا');console.error(e)});
-  },80);
+// ========== پیش‌نمایش ==========
+function openViewer(){
+  if(!txt.value.trim()){
+    toast('⚠️ ابتدا متن را وارد کنید');
+    tab('text');
+    return;
+  }
+  buildPreviewPages();
+  $('viewer').classList.add('on');
+  document.body.style.overflow = 'hidden';
 }
 
-// جلوگیری از زوم دوبار لمس
-let lt=0;
-document.addEventListener('touchend',e=>{const n=Date.now();if(n-lt<300)e.preventDefault();lt=n},{passive:false});
+function closeViewer(){
+  $('viewer').classList.remove('on');
+  document.body.style.overflow = '';
+}
 
-// شروع
-updatePaperSize();
-applyZoom();
-live();
+function buildPreviewPages(){
+  const s = getSettings();
+  const mm = PAPER_MM[s.size];
+  const text = txt.value;
+  const PX_PER_MM = 96 / 25.4;
+  const pageW = mm.w; // mm
+  const pageH = mm.h;
+  const innerH_px = (pageH - s.padding * 2) * PX_PER_MM;
+
+  const body = $('viewerBody');
+  body.innerHTML = '';
+
+  // اندازه‌گیری شکست صفحات: کاراکتر به کاراکتر
+  // ظرف اندازه‌گیری مخفی
+  const probe = document.createElement('div');
+  probe.style.cssText = `position:absolute;left:-99999px;top:0;
+    width:${pageW}mm;box-sizing:border-box;
+    font-size:${s.fontSize}px;
+    line-height:${s.lineHeight};
+    padding:${s.padding}px;
+    font-family:'${s.font}', Tahoma, sans-serif;
+    direction:${s.dir};
+    text-align:${s.align};
+    white-space:pre-wrap;
+    word-wrap:break-word;`;
+  document.body.appendChild(probe);
+
+  // تقسیم متن به صفحات بر اساس ارتفاع
+  const pages = [];
+  const paragraphs = text.split('\n');
+
+  let currentText = '';
+
+  // تابع کمکی: چک کن آیا متن فعلی جا می‌شه؟
+  function fits(t){
+    probe.textContent = t;
+    // ارتفاع محتوا منهای پدینگ بالا/پایین
+    return (probe.scrollHeight - s.padding * 2) <= innerH_px;
+  }
+
+  // استراتژی: کلمه به کلمه اضافه کن
+  const words = text.split(/(\s+)/); // حفظ فاصله‌ها و خطوط جدید
+  let buf = '';
+
+  for(let i = 0; i < words.length; i++){
+    const test = buf + words[i];
+    if(fits(test)){
+      buf = test;
+    } else {
+      // صفحه پر شد
+      pages.push(buf.replace(/\s+$/, ''));
+      buf = words[i].replace(/^\s+/, '');
+      // اگه یک کلمه تنها هم جا نمی‌شه، اجباراً بذار
+      if(!fits(buf)){
+        // در این حالت کلمه خیلی بلنده — بذار توی صفحه خودش
+        pages.push(buf);
+        buf = '';
+      }
+    }
+  }
+  if(buf.trim() || pages.length === 0){
+    pages.push(buf);
+  }
+
+  document.body.removeChild(probe);
+
+  // رندر هر صفحه
+  pages.forEach((content, idx) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'page-wrap';
+
+    const page = document.createElement('div');
+    page.className = 'page';
+    page.style.width = pageW + 'mm';
+    page.style.height = pageH + 'mm';
+
+    const inner = document.createElement('div');
+    inner.className = 'page-content';
+    inner.textContent = content;
+    applyStyle(inner, s);
+
+    page.appendChild(inner);
+    wrap.appendChild(page);
+
+    const num = document.createElement('div');
+    num.className = 'page-num';
+    num.textContent = `صفحه ${fa(idx + 1)} از ${fa(pages.length)}`;
+    wrap.appendChild(num);
+
+    body.appendChild(wrap);
+  });
+
+  // به‌روزرسانی شمارنده
+  const label = fa(pages.length) + ' صفحه';
+  $('viewerCount').textContent = label;
+  $('pageBadge').textContent = label;
+}
+
+// ========== دانلود PDF ==========
+async function downloadPDF(){
+  if(!txt.value.trim()){
+    toast('⚠️ ابتدا متن را وارد کنید');
+    tab('text');
+    return;
+  }
+
+  $('load').classList.add('on');
+
+  try {
+    const s = getSettings();
+    const root = $('pdfRoot');
+    root.innerHTML = '';
+
+    // ساخت یک ظرف PDF با استایل کامل
+    const container = document.createElement('div');
+    container.style.cssText = `
+      background:#fff;
+      color:#000;
+      box-sizing:border-box;
+    `;
+    applyStyle(container, s);
+    container.textContent = txt.value;
+
+    root.appendChild(container);
+
+    // اطمینان از بارگذاری فونت
+    if(document.fonts && document.fonts.ready){
+      await document.fonts.ready;
+    }
+
+    const filename = ($('fn').value.trim() || 'document') + '.pdf';
+
+    const opt = {
+      margin: 0,
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        letterRendering: true
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: s.size,
+        orientation: 'portrait'
+      },
+      pagebreak: {
+        mode: ['css', 'legacy'],
+        avoid: 'img'
+      }
+    };
+
+    await html2pdf().set(opt).from(container).save();
+
+    $('load').classList.remove('on');
+    toast('✅ PDF دانلود شد');
+  } catch(err){
+    console.error(err);
+    $('load').classList.remove('on');
+    toast('❌ خطا در ساخت PDF');
+  }
+}
+
+// ========== توست ==========
+let toastTimer;
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 2600);
+}
+
+// ========== اولیه ==========
+updatePageCount();
 </script>
 
 </body>
