@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>متن به PDF</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Vazirmatn,Tahoma,sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#eef0f5;color:#1f2937;font-size:15px;line-height:1.7;min-height:100vh}
@@ -15,12 +15,12 @@ header h1{font-size:17px;font-weight:700}
 header .pages{background:#fff2;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600}
 
 main{padding:16px;max-width:800px;margin:0 auto;padding-bottom:100px}
-
 .card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px #0000000d}
 .card h3{font-size:14px;font-weight:700;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #eef2ff}
 
 textarea{width:100%;min-height:320px;padding:14px;border-radius:12px;border:2px solid #e5e7eb;background:#fafbfc;font-family:inherit;font-size:16px;line-height:1.9;resize:vertical;transition:.2s}
 textarea:focus{outline:0;border-color:#6366f1;background:#fff}
+textarea::placeholder{color:#b8bcc7}
 
 .info{display:flex;justify-content:space-between;font-size:12px;color:#9ca3af;margin-top:8px;padding:0 4px}
 
@@ -36,52 +36,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{flex:1;min-width:65px;padding:11px 6px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;color:#6b7280;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:.15s}
 .chip.active{background:#eef2ff;border-color:#6366f1;color:#4f46e5}
-.chip:active{transform:scale(.96)}
 
 .btn{width:100%;padding:15px;border:0;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn:active{transform:scale(.97)}
 .btn-p{background:#6366f1;color:#fff;box-shadow:0 4px 12px #6366f144}
 .btn-s{background:#fff;color:#4b5563;border:2px solid #e5e7eb;margin-top:10px}
 
-/* ====== پیش‌نمایش تمام‌صفحه ====== */
 .viewer{position:fixed;inset:0;background:#3a3f4b;z-index:200;display:none;flex-direction:column}
 .viewer.on{display:flex}
-
-.viewer-head{background:#252932;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;box-shadow:0 2px 8px #0003}
+.viewer-head{background:#252932;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .viewer-head .title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
 .viewer-head .count{background:#ffffff1a;padding:4px 10px;border-radius:12px;font-size:12px}
 .viewer-head .close{background:#ef4444;border:0;color:#fff;padding:8px 16px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
-
-.viewer-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;align-items:center;gap:20px;-webkit-overflow-scrolling:touch}
+.viewer-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;align-items:center;gap:20px}
 
 .page-wrap{position:relative;flex-shrink:0}
-.page{
-  background:#fff;
-  width:210mm;
-  height:297mm;
-  box-shadow:0 4px 20px #0006;
-  overflow:hidden;
-  position:relative;
-}
-.page-content{
-  position:absolute;
-  inset:0;
-  padding:30px;
-  color:#000;
-  white-space:pre-wrap;
-  word-wrap:break-word;
-  overflow:hidden;
-}
-.page-num{
-  position:absolute;
-  bottom:-28px;
-  left:50%;
-  transform:translateX(-50%);
-  color:#cbd5e1;
-  font-size:12px;
-  font-weight:600;
-  white-space:nowrap;
-}
+.page{background:#fff;width:210mm;height:297mm;box-shadow:0 4px 20px #0006;overflow:hidden;position:relative}
+.page-content{position:absolute;inset:0;padding:30px;color:#000;white-space:pre-wrap;word-wrap:break-word;overflow:hidden}
+.page-num{position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);color:#cbd5e1;font-size:12px;font-weight:600;white-space:nowrap}
 
 @media(max-width:900px){
   .page{transform:scale(.42);transform-origin:top center}
@@ -90,27 +62,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
   .viewer-body{padding:14px;gap:0}
 }
 
-/* ====== موبایل: تب‌های پایین ====== */
-.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e5e7eb;display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:100;box-shadow:0 -2px 10px #0000000d}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e5e7eb;display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:100}
 .tab{flex:1;background:0;border:0;padding:8px 4px;font-family:inherit;font-size:11px;font-weight:600;color:#9ca3af;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border-radius:10px}
 .tab i{font-size:20px;font-style:normal}
 .tab.active{color:#6366f1;background:#eef2ff}
-
 .panel{display:none}
 .panel.active{display:block}
 
-/* لودینگ */
 .load{position:fixed;inset:0;background:#00000080;backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:999}
 .load.on{display:flex}
 .load-box{background:#fff;padding:24px 32px;border-radius:16px;text-align:center}
 .spin{width:42px;height:42px;border:4px solid #eef2ff;border-top-color:#6366f1;border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 12px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-/* توست */
 .toast{position:fixed;bottom:90px;left:50%;transform:translate(-50%,100px);background:#1f2937;color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:2000;opacity:0;transition:.3s;max-width:calc(100% - 40px);text-align:center;pointer-events:none}
 .toast.on{opacity:1;transform:translate(-50%,0)}
-
-.hidden{position:absolute;left:-99999px;top:0;visibility:hidden}
 </style>
 </head>
 <body>
@@ -121,21 +87,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
 </header>
 
 <main>
-
-  <!-- تب متن -->
   <div class="panel active" id="p-text">
     <div class="card">
       <h3>✍️ متن</h3>
-      <textarea id="txt" placeholder="متن را اینجا بنویسید یا پیست کنید...">سلام، این یک متن نمونه است.
-
-این برنامه متن شما را به PDF تبدیل می‌کند. روی تب «تنظیمات» سایز فونت و فاصله خطوط را تغییر دهید. روی «خروجی» دکمه پیش‌نمایش و دانلود را بزنید.
-
-موفق باشید! 🚀</textarea>
+      <textarea id="txt" placeholder="متن خود را اینجا بنویسید یا پیست کنید..."></textarea>
       <div class="info"><span id="cc">۰ کاراکتر</span><span id="wc">۰ کلمه</span></div>
     </div>
   </div>
 
-  <!-- تب تنظیمات -->
   <div class="panel" id="p-set">
     <div class="card">
       <h3>🔤 فونت</h3>
@@ -148,25 +107,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
         <input type="range" id="lh" min="1" max="3" step="0.1" value="1.8">
       </div>
       <div class="ctrl">
-        <div class="ctrl-head"><span>حاشیه صفحه</span><span class="ctrl-val" id="pdV">۳۰</span></div>
+        <div class="ctrl-head"><span>حاشیه</span><span class="ctrl-val" id="pdV">۳۰</span></div>
         <input type="range" id="pd" min="10" max="80" value="30">
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>🔤 نوع فونت</h3>
-      <div class="chips" id="ffG">
-        <button class="chip active" data-v="Vazirmatn">وزیرمتن</button>
-        <button class="chip" data-v="Tahoma">Tahoma</button>
-        <button class="chip" data-v="Arial">Arial</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>↔️ جهت</h3>
-      <div class="chips" id="dirG">
-        <button class="chip active" data-v="rtl">راست‌چین</button>
-        <button class="chip" data-v="ltr">چپ‌چین</button>
       </div>
     </div>
 
@@ -189,7 +131,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
     </div>
   </div>
 
-  <!-- تب خروجی -->
   <div class="panel" id="p-exp">
     <div class="card">
       <h3>💾 خروجی</h3>
@@ -201,17 +142,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
     <button class="btn btn-p" onclick="openViewer()">👁️ پیش‌نمایش</button>
     <button class="btn btn-s" onclick="downloadPDF()">📥 دانلود PDF</button>
   </div>
-
 </main>
 
-<!-- تب‌بار -->
 <nav class="tabs">
   <button class="tab active" data-t="text" onclick="tab('text')"><i>✍️</i>متن</button>
   <button class="tab" data-t="set" onclick="tab('set')"><i>⚙️</i>تنظیمات</button>
   <button class="tab" data-t="exp" onclick="tab('exp')"><i>📥</i>خروجی</button>
 </nav>
 
-<!-- پیش‌نمایش تمام‌صفحه -->
 <div class="viewer" id="viewer">
   <div class="viewer-head">
     <div class="title">👁️ پیش‌نمایش <span class="count" id="viewerCount">۰ صفحه</span></div>
@@ -220,72 +158,54 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
   <div class="viewer-body" id="viewerBody"></div>
 </div>
 
-<!-- لودینگ -->
-<div class="load" id="load">
-  <div class="load-box">
-    <div class="spin"></div>
-    <p style="font-weight:600;font-size:14px">در حال ساخت...</p>
-  </div>
-</div>
-
-<!-- توست -->
+<div class="load" id="load"><div class="load-box"><div class="spin"></div><p style="font-weight:600;font-size:14px">در حال ساخت...</p></div></div>
 <div class="toast" id="toast"></div>
 
-<!-- ظرف مخفی برای رندر نهایی PDF -->
-<div class="hidden"><div id="pdfRoot"></div></div>
-
 <script>
-// ========== اعداد فارسی ==========
+// ========== ابزار ==========
 const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const $ = id => document.getElementById(id);
+const cv = g => document.querySelector(`#${g} .chip.active`).dataset.v;
 
 // ========== تب‌ها ==========
 function tab(name){
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-  document.getElementById('p-' + name).classList.add('active');
+  $('p-' + name).classList.add('active');
   document.querySelector(`.tab[data-t="${name}"]`).classList.add('active');
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
-// ========== خواندن تنظیمات ==========
-const $ = id => document.getElementById(id);
-const cv = g => document.querySelector(`#${g} .chip.active`).dataset.v;
-
+// ========== تنظیمات ==========
 function getSettings(){
   return {
     fontSize: +$('fs').value,
     lineHeight: +$('lh').value,
     padding: +$('pd').value,
-    font: cv('ffG'),
-    dir: cv('dirG'),
     align: cv('alG'),
     size: cv('psG')
   };
 }
 
-// ابعاد کاغذ بر حسب میلی‌متر (برای رندر HTML)
 const PAPER_MM = {
-  a4:     { w: 210, h: 297 },
-  a5:     { w: 148, h: 210 },
-  letter: { w: 216, h: 279 }
+  a4: {w:210, h:297},
+  a5: {w:148, h:210},
+  letter: {w:216, h:279}
 };
 
 // ========== اسلایدرها ==========
-[['fs','fsV'], ['lh','lhV'], ['pd','pdV']].forEach(([id, vid]) => {
+[['fs','fsV'],['lh','lhV'],['pd','pdV']].forEach(([id,vid])=>{
   const el = $(id), v = $(vid);
-  el.addEventListener('input', () => {
-    v.textContent = fa(el.value);
-    updatePageCount();
-  });
+  el.addEventListener('input', ()=>{ v.textContent = fa(el.value); updatePageCount(); });
   v.textContent = fa(el.value);
 });
 
 // ========== چیپ‌ها ==========
-['ffG','dirG','alG','psG'].forEach(g => {
-  $(g).addEventListener('click', e => {
+['alG','psG'].forEach(g=>{
+  $(g).addEventListener('click', e=>{
     const c = e.target.closest('.chip');
     if(!c) return;
-    $(g).querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+    $(g).querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
     c.classList.add('active');
     updatePageCount();
   });
@@ -298,54 +218,31 @@ function updateCounts(){
   $('cc').textContent = fa(t.length) + ' کاراکتر';
   $('wc').textContent = fa(t.trim() ? t.trim().split(/\s+/).length : 0) + ' کلمه';
 }
-txt.addEventListener('input', () => {
-  updateCounts();
-  updatePageCount();
-});
+txt.addEventListener('input', ()=>{ updateCounts(); updatePageCount(); });
 updateCounts();
 
-// ========== اعمال استایل روی یک عنصر ==========
-function applyStyle(el, s){
-  el.style.fontSize = s.fontSize + 'px';
-  el.style.lineHeight = s.lineHeight;
-  el.style.padding = s.padding + 'px';
-  el.style.direction = s.dir;
-  el.style.textAlign = s.align;
-  el.style.fontFamily = `'${s.font}', Tahoma, sans-serif`;
-  el.style.whiteSpace = 'pre-wrap';
-  el.style.wordWrap = 'break-word';
-}
-
-// ========== شمارش صفحات واقعی ==========
-// رندر در ظرف مخفی با عرض دقیق صفحه، سپس محاسبه ارتفاع
+// ========== شمارش صفحات ==========
 function countPages(){
+  if(!txt.value.trim()) return 0;
   const s = getSettings();
   const mm = PAPER_MM[s.size];
-  const text = txt.value;
-
-  // A4: 210mm عرض ≈ 793.7px در 96dpi
-  // ارتفاع A4 = 297mm ≈ 1122.5px
-  const PX_PER_MM = 96 / 25.4;
+  const PX_PER_MM = 96/25.4;
   const pageW = mm.w * PX_PER_MM;
   const pageH = mm.h * PX_PER_MM;
 
-  // ظرف اندازه‌گیری
   const probe = document.createElement('div');
   probe.style.cssText = `position:absolute;left:-99999px;top:0;
     width:${pageW}px;box-sizing:border-box;
-    font-size:${s.fontSize}px;
-    line-height:${s.lineHeight};
+    font-size:${s.fontSize}px;line-height:${s.lineHeight};
     padding:${s.padding}px;
-    font-family:'${s.font}', Tahoma, sans-serif;
-    direction:${s.dir};
-    text-align:${s.align};
-    white-space:pre-wrap;
-    word-wrap:break-word;`;
-  probe.textContent = text;
+    font-family:Vazirmatn,Tahoma,sans-serif;
+    direction:rtl;text-align:${s.align};
+    white-space:pre-wrap;word-wrap:break-word;`;
+  probe.textContent = txt.value;
   document.body.appendChild(probe);
 
-  const innerH = pageH - (s.padding * 2);
-  const totalH = probe.scrollHeight - (s.padding * 2);
+  const innerH = pageH - s.padding*2;
+  const totalH = probe.scrollHeight - s.padding*2;
   document.body.removeChild(probe);
 
   if(totalH <= 0) return 1;
@@ -354,191 +251,234 @@ function countPages(){
 
 function updatePageCount(){
   const n = countPages();
-  const label = fa(n) + ' صفحه';
-  $('pageBadge').textContent = label;
-  $('viewerCount').textContent = label;
+  $('pageBadge').textContent = fa(n) + ' صفحه';
 }
 
 // ========== پیش‌نمایش ==========
 function openViewer(){
-  if(!txt.value.trim()){
-    toast('⚠️ ابتدا متن را وارد کنید');
-    tab('text');
-    return;
-  }
-  buildPreviewPages();
+  if(!txt.value.trim()){ toast('⚠️ ابتدا متن را وارد کنید'); tab('text'); return; }
+  buildPreview();
   $('viewer').classList.add('on');
   document.body.style.overflow = 'hidden';
 }
-
 function closeViewer(){
   $('viewer').classList.remove('on');
   document.body.style.overflow = '';
 }
 
-function buildPreviewPages(){
+function buildPreview(){
   const s = getSettings();
   const mm = PAPER_MM[s.size];
-  const text = txt.value;
-  const PX_PER_MM = 96 / 25.4;
-  const pageW = mm.w; // mm
-  const pageH = mm.h;
-  const innerH_px = (pageH - s.padding * 2) * PX_PER_MM;
+  const PX_PER_MM = 96/25.4;
+  const innerH_px = (mm.h - s.padding*2) * PX_PER_MM;
 
-  const body = $('viewerBody');
-  body.innerHTML = '';
-
-  // اندازه‌گیری شکست صفحات: کاراکتر به کاراکتر
-  // ظرف اندازه‌گیری مخفی
   const probe = document.createElement('div');
   probe.style.cssText = `position:absolute;left:-99999px;top:0;
-    width:${pageW}mm;box-sizing:border-box;
-    font-size:${s.fontSize}px;
-    line-height:${s.lineHeight};
+    width:${mm.w}mm;box-sizing:border-box;
+    font-size:${s.fontSize}px;line-height:${s.lineHeight};
     padding:${s.padding}px;
-    font-family:'${s.font}', Tahoma, sans-serif;
-    direction:${s.dir};
-    text-align:${s.align};
-    white-space:pre-wrap;
-    word-wrap:break-word;`;
+    font-family:Vazirmatn,Tahoma,sans-serif;
+    direction:rtl;text-align:${s.align};
+    white-space:pre-wrap;word-wrap:break-word;`;
   document.body.appendChild(probe);
 
-  // تقسیم متن به صفحات بر اساس ارتفاع
-  const pages = [];
-  const paragraphs = text.split('\n');
-
-  let currentText = '';
-
-  // تابع کمکی: چک کن آیا متن فعلی جا می‌شه؟
   function fits(t){
     probe.textContent = t;
-    // ارتفاع محتوا منهای پدینگ بالا/پایین
-    return (probe.scrollHeight - s.padding * 2) <= innerH_px;
+    return (probe.scrollHeight - s.padding*2) <= innerH_px;
   }
 
-  // استراتژی: کلمه به کلمه اضافه کن
-  const words = text.split(/(\s+)/); // حفظ فاصله‌ها و خطوط جدید
+  const tokens = txt.value.split(/(\s+)/);
+  const pages = [];
   let buf = '';
 
-  for(let i = 0; i < words.length; i++){
-    const test = buf + words[i];
-    if(fits(test)){
-      buf = test;
-    } else {
-      // صفحه پر شد
-      pages.push(buf.replace(/\s+$/, ''));
-      buf = words[i].replace(/^\s+/, '');
-      // اگه یک کلمه تنها هم جا نمی‌شه، اجباراً بذار
-      if(!fits(buf)){
-        // در این حالت کلمه خیلی بلنده — بذار توی صفحه خودش
-        pages.push(buf);
-        buf = '';
-      }
+  for(const tok of tokens){
+    const test = buf + tok;
+    if(fits(test)){ buf = test; }
+    else {
+      pages.push(buf.replace(/\s+$/,''));
+      buf = tok.replace(/^\s+/,'');
+      if(!fits(buf)){ pages.push(buf); buf = ''; }
     }
   }
-  if(buf.trim() || pages.length === 0){
-    pages.push(buf);
-  }
+  if(buf.trim() || !pages.length) pages.push(buf);
 
   document.body.removeChild(probe);
 
-  // رندر هر صفحه
-  pages.forEach((content, idx) => {
+  const body = $('viewerBody');
+  body.innerHTML = '';
+  pages.forEach((content, idx)=>{
     const wrap = document.createElement('div');
     wrap.className = 'page-wrap';
-
     const page = document.createElement('div');
     page.className = 'page';
-    page.style.width = pageW + 'mm';
-    page.style.height = pageH + 'mm';
-
+    page.style.width = mm.w + 'mm';
+    page.style.height = mm.h + 'mm';
     const inner = document.createElement('div');
     inner.className = 'page-content';
     inner.textContent = content;
-    applyStyle(inner, s);
-
+    inner.style.fontSize = s.fontSize + 'px';
+    inner.style.lineHeight = s.lineHeight;
+    inner.style.padding = s.padding + 'px';
+    inner.style.direction = 'rtl';
+    inner.style.textAlign = s.align;
     page.appendChild(inner);
     wrap.appendChild(page);
-
     const num = document.createElement('div');
     num.className = 'page-num';
-    num.textContent = `صفحه ${fa(idx + 1)} از ${fa(pages.length)}`;
+    num.textContent = `صفحه ${fa(idx+1)} از ${fa(pages.length)}`;
     wrap.appendChild(num);
-
     body.appendChild(wrap);
   });
 
-  // به‌روزرسانی شمارنده
-  const label = fa(pages.length) + ' صفحه';
-  $('viewerCount').textContent = label;
-  $('pageBadge').textContent = label;
+  $('viewerCount').textContent = fa(pages.length) + ' صفحه';
+  $('pageBadge').textContent = fa(pages.length) + ' صفحه';
 }
 
-// ========== دانلود PDF ==========
+// ========== دانلود PDF با canvas (حروف سالم) ==========
 async function downloadPDF(){
-  if(!txt.value.trim()){
-    toast('⚠️ ابتدا متن را وارد کنید');
-    tab('text');
-    return;
-  }
-
+  if(!txt.value.trim()){ toast('⚠️ ابتدا متن را وارد کنید'); tab('text'); return; }
   $('load').classList.add('on');
+  toast('⏳ در حال ساخت PDF...');
 
   try {
+    if(document.fonts && document.fonts.ready) await document.fonts.ready;
+    await new Promise(r => setTimeout(r, 300));
+
     const s = getSettings();
-    const root = $('pdfRoot');
-    root.innerHTML = '';
+    const mm = PAPER_MM[s.size];
+    const pageSize = s.size;
 
-    // ساخت یک ظرف PDF با استایل کامل
-    const container = document.createElement('div');
-    container.style.cssText = `
-      background:#fff;
-      color:#000;
-      box-sizing:border-box;
-    `;
-    applyStyle(container, s);
-    container.textContent = txt.value;
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({
+      unit: 'mm',
+      format: pageSize,
+      orientation: 'portrait',
+      compress: true
+    });
 
-    root.appendChild(container);
+    const PX_PER_MM = 96 / 25.4;
+    const SCALE = 3;
+    const pageWidthPx = mm.w * PX_PER_MM * SCALE;
+    const pageHeightPx = mm.h * PX_PER_MM * SCALE;
 
-    // اطمینان از بارگذاری فونت
-    if(document.fonts && document.fonts.ready){
-      await document.fonts.ready;
+    const pages = splitIntoPages(s, mm.h - s.padding*2, mm.w);
+
+    for(let i = 0; i < pages.length; i++){
+      const canvas = document.createElement('canvas');
+      canvas.width = pageWidthPx;
+      canvas.height = pageHeightPx;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const realFontPx = s.fontSize * SCALE;
+      const realLineHeight = s.fontSize * s.lineHeight * SCALE;
+      const padPx = s.padding * PX_PER_MM * SCALE;
+
+      ctx.fillStyle = '#000000';
+      ctx.direction = 'rtl';
+      ctx.textBaseline = 'top';
+      ctx.font = `${realFontPx}px Vazirmatn, Tahoma, sans-serif`;
+
+      const maxWidth = canvas.width - padPx * 2;
+      const lines = wrapText(ctx, pages[i], maxWidth);
+
+      const startX = s.align === 'right' ? canvas.width - padPx
+                   : s.align === 'center' ? canvas.width / 2
+                   : padPx;
+      let y = padPx;
+
+      ctx.textAlign = s.align === 'center' ? 'center' : (s.align === 'right' ? 'right' : 'left');
+
+      for(const line of lines){
+        if(y + realLineHeight > canvas.height - padPx) break;
+        ctx.fillText(line, startX, y);
+        y += realLineHeight;
+      }
+
+      if(i > 0) pdf.addPage();
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      pdf.addImage(imgData, 'JPEG', 0, 0, mm.w, mm.h, undefined, 'FAST');
     }
 
     const filename = ($('fn').value.trim() || 'document') + '.pdf';
-
-    const opt = {
-      margin: 0,
-      filename: filename,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        letterRendering: true
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: s.size,
-        orientation: 'portrait'
-      },
-      pagebreak: {
-        mode: ['css', 'legacy'],
-        avoid: 'img'
-      }
-    };
-
-    await html2pdf().set(opt).from(container).save();
+    pdf.save(filename);
 
     $('load').classList.remove('on');
     toast('✅ PDF دانلود شد');
   } catch(err){
     console.error(err);
     $('load').classList.remove('on');
-    toast('❌ خطا در ساخت PDF');
+    toast('❌ خطا: ' + err.message);
   }
+}
+
+// ========== تقسیم متن به صفحات ==========
+function splitIntoPages(s, innerH_mm, pageW_mm){
+  const PX_PER_MM = 96 / 25.4;
+  const pageW = pageW_mm * PX_PER_MM;
+  const innerH = innerH_mm * PX_PER_MM;
+
+  const probe = document.createElement('div');
+  probe.style.cssText = `position:absolute;left:-99999px;top:0;
+    width:${pageW}px;box-sizing:border-box;
+    font-size:${s.fontSize}px;line-height:${s.lineHeight};
+    padding:${s.padding}px;
+    font-family:Vazirmatn,Tahoma,sans-serif;
+    direction:rtl;text-align:${s.align};
+    white-space:pre-wrap;word-wrap:break-word;`;
+  document.body.appendChild(probe);
+
+  function fits(t){
+    probe.textContent = t;
+    return (probe.scrollHeight - s.padding*2) <= innerH;
+  }
+
+  const tokens = txt.value.split(/(\s+)/);
+  const pages = [];
+  let buf = '';
+
+  for(const tok of tokens){
+    const test = buf + tok;
+    if(fits(test)){ buf = test; }
+    else {
+      pages.push(buf.replace(/\s+$/,''));
+      buf = tok.replace(/^\s+/,'');
+      if(!fits(buf)){ pages.push(buf); buf = ''; }
+    }
+  }
+  if(buf.trim() || !pages.length) pages.push(buf);
+
+  document.body.removeChild(probe);
+  return pages;
+}
+
+// ========== شکست متن برای canvas ==========
+function wrapText(ctx, text, maxWidth){
+  const lines = [];
+  const paragraphs = text.split('\n');
+
+  for(const para of paragraphs){
+    if(para === ''){ lines.push(''); continue; }
+    const words = para.split(/(\s+)/);
+    let currentLine = '';
+
+    for(const word of words){
+      const test = currentLine + word;
+      const w = ctx.measureText(test).width;
+      if(w <= maxWidth){
+        currentLine = test;
+      } else {
+        if(currentLine.trim()) lines.push(currentLine.replace(/\s+$/, ''));
+        currentLine = word.replace(/^\s+/, '');
+      }
+    }
+    if(currentLine.trim()) lines.push(currentLine);
+    else if(para !== '') lines.push('');
+  }
+
+  return lines;
 }
 
 // ========== توست ==========
@@ -548,10 +488,9 @@ function toast(msg){
   t.textContent = msg;
   t.classList.add('on');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('on'), 2600);
+  toastTimer = setTimeout(()=>t.classList.remove('on'), 3000);
 }
 
-// ========== اولیه ==========
 updatePageCount();
 </script>
 
